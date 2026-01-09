@@ -14,7 +14,9 @@
         .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff5f0; padding: 15px; border-radius: 10px; }
         .setup-grid div { display: flex; flex-direction: column; }
         label { font-size: 0.75rem; color: #666; margin-bottom: 3px; font-weight: bold; }
-        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; background: white; }
+        .note { font-size: 0.65rem; color: #999; font-weight: normal; margin-top: 2px; }
+        
+        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; background: white; width: 100%; box-sizing: border-box; }
 
         .exec-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 15px 0; box-shadow: 0 4px 0 #cc3700; }
         .exec-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc3700; }
@@ -27,8 +29,7 @@
         th { background: #f2f2f2; position: sticky; top: 0; z-index: 5; font-size: 0.75rem; }
         th, td { border: 1px solid #eee; padding: 8px 5px; text-align: center; }
         
-        /* プラス列のセレクトボックス用スタイル */
-        .score-select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; cursor: pointer; background: #fff; }
+        .score-select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; cursor: pointer; background: #fff; width: auto; }
         .pass-chk { transform: scale(1.2); cursor: pointer; }
         
         .up { background: #fff5f5; color: #e53e3e; font-weight: bold; }
@@ -59,15 +60,22 @@
             </div>
             <div>
                 <label>ランクダウンまでの日数</label>
-                <input type="number" id="init-days" value="6" min="0" max="6">
+                <select id="init-days">
+                    <option value="6">6日</option><option value="5">5日</option><option value="4">4日</option>
+                    <option value="3">3日</option><option value="2">2日</option><option value="1">1日</option>
+                    <option value="0">0日</option>
+                </select>
             </div>
             <div>
-                <label>現在の累計プラス</label>
-                <input type="number" id="init-plus" value="0" min="0">
+                <label>昨日までの累計プラス</label>
+                <select id="init-plus">
+                    </select>
+                <span class="note">※初日の場合は0</span>
             </div>
             <div>
                 <label>現在のスキップパスの枚数</label>
-                <input type="number" id="init-pass" value="2" min="0" max="10">
+                <select id="init-pass">
+                    </select>
             </div>
             <div>
                 <label>計算開始日</label>
@@ -108,11 +116,25 @@
     const DAYS_LIMIT = 60;
 
     window.onload = () => {
+        // プルダウンの動的生成
+        const plusSelect = document.getElementById('init-plus');
+        for(let i=0; i<=17; i++) {
+            let opt = document.createElement('option');
+            opt.value = i; opt.innerText = i + " pt";
+            plusSelect.appendChild(opt);
+        }
+        const passSelect = document.getElementById('init-pass');
+        for(let i=0; i<=10; i++) {
+            let opt = document.createElement('option');
+            opt.value = i; opt.innerText = i + " 枚";
+            passSelect.appendChild(opt);
+        }
+
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('start-date').value = today;
-        renderTable(); // 先にテーブルを生成
-        loadData();    // 保存データを読み込んで反映
-        runSim();      // 初回計算
+        renderTable(); 
+        loadData();    
+        runSim();      
     };
 
     function renderTable() {
@@ -127,10 +149,8 @@
                 <td id="days-${i}"></td>
                 <td>
                     <select class="score-select" id="score-${i}" onchange="runSim()">
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="4">4</option>
-                        <option value="6">6</option>
+                        <option value="1">1</option><option value="2">2</option>
+                        <option value="4">4</option><option value="6">6</option>
                         <option value="0">0</option>
                     </select>
                 </td>
@@ -219,12 +239,12 @@
             start: document.getElementById('start-date').value,
             scores: scores, passes: passes
         };
-        localStorage.setItem('iriam_full_v3', JSON.stringify(data));
+        localStorage.setItem('iriam_full_v4', JSON.stringify(data));
         alert("実行しました。入力を保存しました。");
     }
 
     function loadData() {
-        let raw = localStorage.getItem('iriam_full_v3');
+        let raw = localStorage.getItem('iriam_full_v4');
         if (!raw) return;
         let d = JSON.parse(raw);
         document.getElementById('init-rank').value = d.rank;
@@ -232,8 +252,6 @@
         document.getElementById('init-plus').value = d.plus;
         document.getElementById('init-pass').value = d.pass;
         if(d.start) document.getElementById('start-date').value = d.start;
-        
-        // セレクトボックスの値を復元
         for(let i=0; i<60; i++){
             if(d.scores && d.scores[i] !== undefined) document.getElementById(`score-${i}`).value = d.scores[i];
             if(d.passes && d.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = d.passes[i];
