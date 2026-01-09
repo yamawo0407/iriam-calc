@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2575.2">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;IRIAMランクシミュレーター&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 20px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>h1 { color: #ff4500; font-size: 1.2rem; text-align: center; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.input-group { margin-bottom: 15px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>label { font-size: 0.8rem; color: #666; display: block; margin-bottom: 5px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>button { width: 100%; padding: 12px; background: #ff4500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.results { margin-top: 20px; overflow-x: auto; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.up { color: red; font-weight: bold; }</p>
+<p class="p1"><span class="Apple-converted-space">        </span>.down { color: blue; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1&gt;IRIAMシミュレーター&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;現在のランク&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="rank"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="D"&gt;D&lt;/option&gt;&lt;option value="C1"&gt;C1&lt;/option&gt;&lt;option value="C2"&gt;C2&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="C3"&gt;C3&lt;/option&gt;&lt;option value="C4"&gt;C4&lt;/option&gt;&lt;option value="C5"&gt;C5&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="B1"&gt;B1&lt;/option&gt;&lt;option value="B2"&gt;B2&lt;/option&gt;&lt;option value="B3"&gt;B3&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="A1"&gt;A1&lt;/option&gt;&lt;option value="A2"&gt;A2&lt;/option&gt;&lt;option value="A3"&gt;A3&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="S1"&gt;S1&lt;/option&gt;&lt;option value="S2"&gt;S2&lt;/option&gt;&lt;option value="S3"&gt;S3&lt;/option&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;残り日数（6〜0）&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" id="days" value="6" min="0" max="6"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;現在の累計スコア&lt;/label&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" id="score" value="0"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="calculate()"&gt;シミュレーション実行&lt;/button&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="results"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;table id="res-table"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;thead&gt;&lt;tr&gt;&lt;th&gt;日&lt;/th&gt;&lt;th&gt;ランク&lt;/th&gt;&lt;th&gt;残り&lt;/th&gt;&lt;th&gt;累計&lt;/th&gt;&lt;th&gt;判定&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>&lt;tbody&gt;&lt;/tbody&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;/table&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function calculate() {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let curRank = document.getElementById('rank').value;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let dayRem = parseInt(document.getElementById('days').value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>let total = parseInt(document.getElementById('score').value);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>const tbody = document.querySelector("#res-table tbody");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>tbody.innerHTML = "";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt;= 14; i++) {</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let status = "";</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let displayDay = dayRem;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>let isEnd = false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>// 簡易シミュレーションのため1日2pt獲得と仮定</p>
+<p class="p1"><span class="Apple-converted-space">                </span>total += 2;<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (total &gt;= 18) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>status = "アップ";</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>isEnd = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else if (dayRem &lt;= 0) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>status = (total &gt;= 12) ? "キープ" : "ダウン";</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>isEnd = true;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dayRem--;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>let tr = `&lt;tr&gt;&lt;td&gt;${i}日後&lt;/td&gt;&lt;td&gt;${curRank}&lt;/td&gt;&lt;td&gt;残り${displayDay}日&lt;/td&gt;&lt;td&gt;${total}&lt;/td&gt;&lt;td class="${status === 'アップ' ? 'up' : (status === 'ダウン' ? 'down' : '')}"&gt;${status}&lt;/td&gt;&lt;/tr&gt;`;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>tbody.innerHTML += tr;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">                </span>if (isEnd) {</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>let idx = RANKS.indexOf(curRank);</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>if (status === "アップ" &amp;&amp; idx &lt; RANKS.length - 1) curRank = RANKS[idx + 1];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>else if (status === "ダウン" &amp;&amp; idx &gt; 0) curRank = RANKS[idx - 1];</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>total = 0;</p>
+<p class="p1"><span class="Apple-converted-space">                    </span>dayRem = 6;</p>
+<p class="p1"><span class="Apple-converted-space">                </span>}</p>
+<p class="p1"><span class="Apple-converted-space">            </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
