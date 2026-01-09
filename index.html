@@ -1,110 +1,149 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="ja">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.2">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>IRIAMランク管理ツール</title>
+    <style>
+        :root { --primary: #ff4500; --bg: #f0f2f5; --card: #ffffff; }
+        body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; line-height: 1.6; }
+        .container { max-width: 500px; margin: 0 auto; }
+        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h1 { font-size: 1.25rem; color: var(--primary); text-align: center; margin: 0 0 20px 0; font-weight: 800; }
+        h2 { font-size: 0.9rem; color: #666; margin: 0 0 10px 0; border-left: 4px solid var(--primary); padding-left: 8px; }
+        
+        .input-group { margin-bottom: 15px; }
+        label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 5px; font-weight: bold; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; -webkit-appearance: none; }
+        
+        .btn-calc { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #cc3700; }
+        .btn-calc:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc3700; }
+        
+        .table-area { margin-top: 20px; overflow-x: auto; background: #fff; border-radius: 12px; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 400px; }
+        th, td { border-bottom: 1px solid #f0f0f0; padding: 12px 8px; text-align: center; }
+        th { background: #fff5f0; color: var(--primary); font-weight: bold; }
+        .up { color: #e53e3e; font-weight: bold; background: #fff5f5; }
+        .down { color: #3182ce; font-weight: bold; background: #ebf8ff; }
+        .keep { color: #38a169; font-weight: bold; background: #f0fff4; }
+        .day-row:nth-child(even) { background-color: #fafafa; }
+    </style>
 </head>
 <body>
-<p class="p1">&lt;!DOCTYPE html&gt;</p>
-<p class="p1">&lt;html lang="ja"&gt;</p>
-<p class="p1">&lt;head&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;title&gt;IRIAMランクシミュレーター&lt;/title&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 20px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>h1 { color: #ff4500; font-size: 1.2rem; text-align: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.input-group { margin-bottom: 15px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>label { font-size: 0.8rem; color: #666; display: block; margin-bottom: 5px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>button { width: 100%; padding: 12px; background: #ff4500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.results { margin-top: 20px; overflow-x: auto; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.up { color: red; font-weight: bold; }</p>
-<p class="p1"><span class="Apple-converted-space">        </span>.down { color: blue; }</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
-<p class="p1">&lt;/head&gt;</p>
-<p class="p1">&lt;body&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="card"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;h1&gt;IRIAMシミュレーター&lt;/h1&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;現在のランク&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;select id="rank"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="D"&gt;D&lt;/option&gt;&lt;option value="C1"&gt;C1&lt;/option&gt;&lt;option value="C2"&gt;C2&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="C3"&gt;C3&lt;/option&gt;&lt;option value="C4"&gt;C4&lt;/option&gt;&lt;option value="C5"&gt;C5&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="B1"&gt;B1&lt;/option&gt;&lt;option value="B2"&gt;B2&lt;/option&gt;&lt;option value="B3"&gt;B3&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="A1"&gt;A1&lt;/option&gt;&lt;option value="A2"&gt;A2&lt;/option&gt;&lt;option value="A3"&gt;A3&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;option value="S1"&gt;S1&lt;/option&gt;&lt;option value="S2"&gt;S2&lt;/option&gt;&lt;option value="S3"&gt;S3&lt;/option&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/select&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;残り日数（6〜0）&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" id="days" value="6" min="0" max="6"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="input-group"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;label&gt;現在の累計スコア&lt;/label&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="number" id="score" value="0"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;button onclick="calculate()"&gt;シミュレーション実行&lt;/button&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="results"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;table id="res-table"&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;thead&gt;&lt;tr&gt;&lt;th&gt;日&lt;/th&gt;&lt;th&gt;ランク&lt;/th&gt;&lt;th&gt;残り&lt;/th&gt;&lt;th&gt;累計&lt;/th&gt;&lt;th&gt;判定&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>&lt;tbody&gt;&lt;/tbody&gt;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>&lt;/table&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
-<p class="p1"><span class="Apple-converted-space">        </span>const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];</p>
-<p class="p1"><span class="Apple-converted-space">        </span>function calculate() {</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let curRank = document.getElementById('rank').value;</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let dayRem = parseInt(document.getElementById('days').value);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>let total = parseInt(document.getElementById('score').value);</p>
-<p class="p1"><span class="Apple-converted-space">            </span>const tbody = document.querySelector("#res-table tbody");</p>
-<p class="p1"><span class="Apple-converted-space">            </span>tbody.innerHTML = "";</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">            </span>for (let i = 1; i &lt;= 14; i++) {</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let status = "";</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let displayDay = dayRem;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>let isEnd = false;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>// 簡易シミュレーションのため1日2pt獲得と仮定</p>
-<p class="p1"><span class="Apple-converted-space">                </span>total += 2;<span class="Apple-converted-space"> </span></p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (total &gt;= 18) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status = "アップ";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>isEnd = true;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else if (dayRem &lt;= 0) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>status = (total &gt;= 12) ? "キープ" : "ダウン";</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>isEnd = true;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>} else {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>dayRem--;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>let tr = `&lt;tr&gt;&lt;td&gt;${i}日後&lt;/td&gt;&lt;td&gt;${curRank}&lt;/td&gt;&lt;td&gt;残り${displayDay}日&lt;/td&gt;&lt;td&gt;${total}&lt;/td&gt;&lt;td class="${status === 'アップ' ? 'up' : (status === 'ダウン' ? 'down' : '')}"&gt;${status}&lt;/td&gt;&lt;/tr&gt;`;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>tbody.innerHTML += tr;</p>
-<p class="p2"><br></p>
-<p class="p1"><span class="Apple-converted-space">                </span>if (isEnd) {</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>let idx = RANKS.indexOf(curRank);</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>if (status === "アップ" &amp;&amp; idx &lt; RANKS.length - 1) curRank = RANKS[idx + 1];</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>else if (status === "ダウン" &amp;&amp; idx &gt; 0) curRank = RANKS[idx - 1];</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>total = 0;</p>
-<p class="p1"><span class="Apple-converted-space">                    </span>dayRem = 6;</p>
-<p class="p1"><span class="Apple-converted-space">                </span>}</p>
-<p class="p1"><span class="Apple-converted-space">            </span>}</p>
-<p class="p1"><span class="Apple-converted-space">        </span>}</p>
-<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
-<p class="p1">&lt;/body&gt;</p>
-<p class="p1">&lt;/html&gt;</p>
+
+<div class="container">
+    <div class="card">
+        <h1>IRIAMシミュレーター</h1>
+        
+        <div class="input-group">
+            <label>現在のランク</label>
+            <select id="rank">
+                <option value="D">D</option><option value="C1">C1</option><option value="C2">C2</option>
+                <option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
+                <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
+                <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
+                <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
+            </select>
+        </div>
+
+        <div class="input-group">
+            <label>残り日数（あと何回配信できるか）</label>
+            <input type="number" id="days" value="6" min="0" max="6">
+        </div>
+
+        <div class="input-group">
+            <label>毎日の目標平均スコア</label>
+            <input type="number" id="daily_goal" value="2" min="0">
+        </div>
+
+        <button class="btn-calc" onclick="runSim()">シミュレーション実行</button>
+    </div>
+
+    <div class="card">
+        <h2>14日間の予測カレンダー</h2>
+        <div class="table-area">
+            <table id="res-table">
+                <thead>
+                    <tr><th>日付</th><th>ランク</th><th>残り</th><th>累計</th><th>判定</th></tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+        <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">※入力値はブラウザに自動保存されます。</p>
+    </div>
+</div>
+
+<script>
+    const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
+
+    // 読み込み時に保存データを復元
+    window.onload = () => {
+        if(localStorage.getItem('iriam_rank')) document.getElementById('rank').value = localStorage.getItem('iriam_rank');
+        if(localStorage.getItem('iriam_days')) document.getElementById('days').value = localStorage.getItem('iriam_days');
+        if(localStorage.getItem('iriam_goal')) document.getElementById('daily_goal').value = localStorage.getItem('iriam_goal');
+        runSim(); // 初期表示
+    };
+
+    function runSim() {
+        let curRank = document.getElementById('rank').value;
+        let dayRem = parseInt(document.getElementById('days').value);
+        let goal = parseInt(document.getElementById('daily_goal').value);
+        let total = 0;
+
+        // 保存
+        localStorage.setItem('iriam_rank', curRank);
+        localStorage.setItem('iriam_days', dayRem);
+        localStorage.setItem('iriam_goal', goal);
+
+        const tbody = document.querySelector("#res-table tbody");
+        tbody.innerHTML = "";
+
+        let now = new Date();
+
+        for (let i = 0; i < 14; i++) {
+            let dateStr = (now.getMonth()+1) + "/" + now.getDate();
+            let dayOfWeek = ['日','月','火','水','木','金','土'][now.getDay()];
+            let displayDay = dayRem;
+            let status = "";
+            let isEnd = false;
+
+            total += goal;
+
+            if (total >= 18) {
+                status = "アップ";
+                isEnd = true;
+            } else if (dayRem <= 0) {
+                status = (total >= 12) ? "キープ" : "ダウン";
+                isEnd = true;
+            } else {
+                dayRem--;
+            }
+
+            let tr = document.createElement("tr");
+            tr.className = "day-row";
+            let sClass = status === "アップ" ? "up" : (status === "ダウン" ? "down" : (status === "キープ" ? "keep" : ""));
+            
+            tr.innerHTML = `
+                <td>${dateStr}(${dayOfWeek})</td>
+                <td>${curRank}</td>
+                <td>${displayDay}日</td>
+                <td>${total}pt</td>
+                <td class="${sClass}">${status}</td>
+            `;
+            tbody.appendChild(tr);
+
+            if (isEnd) {
+                let idx = RANKS.indexOf(curRank);
+                if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
+                else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
+                total = 0;
+                dayRem = 6;
+            }
+            now.setDate(now.getDate() + 1);
+        }
+    }
+</script>
+
 </body>
 </html>
