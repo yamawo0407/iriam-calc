@@ -2,39 +2,26 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>IRIAMランク管理ツール</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIAMランクシミュレーター</title>
     <style>
-        :root { --primary: #ff4500; --bg: #f0f2f5; --card: #ffffff; }
-        body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; background: var(--bg); margin: 0; padding: 15px; color: #333; line-height: 1.6; }
-        .container { max-width: 500px; margin: 0 auto; }
-        .card { background: var(--card); border-radius: 16px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h1 { font-size: 1.25rem; color: var(--primary); text-align: center; margin: 0 0 20px 0; font-weight: 800; }
-        h2 { font-size: 0.9rem; color: #666; margin: 0 0 10px 0; border-left: 4px solid var(--primary); padding-left: 8px; }
-        
+        body { font-family: -apple-system, sans-serif; background: #f0f2f5; padding: 20px; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 500px; margin: 0 auto; }
+        h1 { color: #ff4500; font-size: 1.2rem; text-align: center; }
         .input-group { margin-bottom: 15px; }
-        label { font-size: 0.75rem; color: #888; display: block; margin-bottom: 5px; font-weight: bold; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-size: 1rem; box-sizing: border-box; background: #fff; -webkit-appearance: none; }
-        
-        .btn-calc { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 0 #cc3700; }
-        .btn-calc:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc3700; }
-        
-        .table-area { margin-top: 20px; overflow-x: auto; background: #fff; border-radius: 12px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.85rem; min-width: 400px; }
-        th, td { border-bottom: 1px solid #f0f0f0; padding: 12px 8px; text-align: center; }
-        th { background: #fff5f0; color: var(--primary); font-weight: bold; }
-        .up { color: #e53e3e; font-weight: bold; background: #fff5f5; }
-        .down { color: #3182ce; font-weight: bold; background: #ebf8ff; }
-        .keep { color: #38a169; font-weight: bold; background: #f0fff4; }
-        .day-row:nth-child(even) { background-color: #fafafa; }
+        label { font-size: 0.8rem; color: #666; display: block; margin-bottom: 5px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #ff4500; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .results { margin-top: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+        th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: center; }
+        .up { color: red; font-weight: bold; }
+        .down { color: blue; }
     </style>
 </head>
 <body>
-
-<div class="container">
     <div class="card">
         <h1>IRIAMシミュレーター</h1>
-        
         <div class="input-group">
             <label>現在のランク</label>
             <select id="rank">
@@ -45,105 +32,63 @@
                 <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
             </select>
         </div>
-
         <div class="input-group">
-            <label>残り日数（あと何回配信できるか）</label>
+            <label>残り日数（6〜0）</label>
             <input type="number" id="days" value="6" min="0" max="6">
         </div>
-
         <div class="input-group">
-            <label>毎日の目標平均スコア</label>
-            <input type="number" id="daily_goal" value="2" min="0">
+            <label>毎日の獲得スコア</label>
+            <input type="number" id="score" value="2">
         </div>
+        <button onclick="calculate()">計算する</button>
 
-        <button class="btn-calc" onclick="runSim()">シミュレーション実行</button>
-    </div>
-
-    <div class="card">
-        <h2>14日間の予測カレンダー</h2>
-        <div class="table-area">
+        <div class="results">
             <table id="res-table">
-                <thead>
-                    <tr><th>日付</th><th>ランク</th><th>残り</th><th>累計</th><th>判定</th></tr>
-                </thead>
-                <tbody>
-                    </tbody>
+                <thead><tr><th>日</th><th>ランク</th><th>残り</th><th>スコア</th><th>判定</th></tr></thead>
+                <tbody></tbody>
             </table>
         </div>
-        <p style="font-size: 0.7rem; color: #999; margin-top: 10px;">※入力値はブラウザに自動保存されます。</p>
     </div>
-</div>
 
-<script>
-    const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
+    <script>
+        const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
+        function calculate() {
+            let curRank = document.getElementById('rank').value;
+            let dayRem = parseInt(document.getElementById('days').value);
+            let dailyScore = parseInt(document.getElementById('score').value);
+            const tbody = document.querySelector("#res-table tbody");
+            tbody.innerHTML = "";
+            let total = 0;
 
-    // 読み込み時に保存データを復元
-    window.onload = () => {
-        if(localStorage.getItem('iriam_rank')) document.getElementById('rank').value = localStorage.getItem('iriam_rank');
-        if(localStorage.getItem('iriam_days')) document.getElementById('days').value = localStorage.getItem('iriam_days');
-        if(localStorage.getItem('iriam_goal')) document.getElementById('daily_goal').value = localStorage.getItem('iriam_goal');
-        runSim(); // 初期表示
-    };
+            for (let i = 1; i <= 14; i++) {
+                let status = "";
+                let displayDay = dayRem;
+                let isEnd = false;
 
-    function runSim() {
-        let curRank = document.getElementById('rank').value;
-        let dayRem = parseInt(document.getElementById('days').value);
-        let goal = parseInt(document.getElementById('daily_goal').value);
-        let total = 0;
+                total += dailyScore;
 
-        // 保存
-        localStorage.setItem('iriam_rank', curRank);
-        localStorage.setItem('iriam_days', dayRem);
-        localStorage.setItem('iriam_goal', goal);
+                if (total >= 18) {
+                    status = "アップ";
+                    isEnd = true;
+                } else if (dayRem <= 0) {
+                    status = (total >= 12) ? "キープ" : "ダウン";
+                    isEnd = true;
+                } else {
+                    dayRem--;
+                }
 
-        const tbody = document.querySelector("#res-table tbody");
-        tbody.innerHTML = "";
+                let tr = `<tr><td>${i}日後</td><td>${curRank}</td><td>${displayDay}日</td><td>${total}</td><td class="${status === 'アップ' ? 'up' : (status === 'ダウン' ? 'down' : '')}">${status}</td></tr>`;
+                tbody.innerHTML += tr;
 
-        let now = new Date();
-
-        for (let i = 0; i < 14; i++) {
-            let dateStr = (now.getMonth()+1) + "/" + now.getDate();
-            let dayOfWeek = ['日','月','火','水','木','金','土'][now.getDay()];
-            let displayDay = dayRem;
-            let status = "";
-            let isEnd = false;
-
-            total += goal;
-
-            if (total >= 18) {
-                status = "アップ";
-                isEnd = true;
-            } else if (dayRem <= 0) {
-                status = (total >= 12) ? "キープ" : "ダウン";
-                isEnd = true;
-            } else {
-                dayRem--;
+                if (isEnd) {
+                    let idx = RANKS.indexOf(curRank);
+                    if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
+                    else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
+                    total = 0;
+                    dayRem = 6;
+                }
             }
-
-            let tr = document.createElement("tr");
-            tr.className = "day-row";
-            let sClass = status === "アップ" ? "up" : (status === "ダウン" ? "down" : (status === "キープ" ? "keep" : ""));
-            
-            tr.innerHTML = `
-                <td>${dateStr}(${dayOfWeek})</td>
-                <td>${curRank}</td>
-                <td>${displayDay}日</td>
-                <td>${total}pt</td>
-                <td class="${sClass}">${status}</td>
-            `;
-            tbody.appendChild(tr);
-
-            if (isEnd) {
-                let idx = RANKS.indexOf(curRank);
-                if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
-                else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
-                total = 0;
-                dayRem = 6;
-            }
-            now.setDate(now.getDate() + 1);
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
