@@ -120,7 +120,8 @@
         const plusSelect = document.getElementById('init-plus');
         for(let i=0; i<=17; i++) {
             let opt = document.createElement('option');
-            opt.value = i; opt.innerText = i + " pt";
+            opt.value = i; 
+            opt.innerText = i; // " pt" を削除
             plusSelect.appendChild(opt);
         }
         const passSelect = document.getElementById('init-pass');
