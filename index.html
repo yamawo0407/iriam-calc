@@ -23,6 +23,7 @@
 
         .status-bar { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
         .status-bar span { font-weight: bold; color: #ffeb3b; }
+        .today-label { font-size: 0.7rem; color: #aaa; margin-right: 5px; }
 
         .table-wrapper { overflow-x: auto; border: 1px solid #eee; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; min-width: 700px; background: white; }
@@ -37,6 +38,7 @@
         .keep { background: #f0fff4; color: #38a169; }
         .pass-row { background: #f9f9f9 !important; color: #999; }
         .tuesday { border-left: 5px solid #ff4500; }
+        .today-highlight { background-color: #fffde7 !important; outline: 2px solid #fbc02d; }
 
         .summary-text { font-size: 0.7rem; color: #999; text-align: center; margin-top: 10px; }
     </style>
@@ -68,14 +70,12 @@
             </div>
             <div>
                 <label>昨日までの累計プラス</label>
-                <select id="init-plus">
-                    </select>
+                <select id="init-plus"></select>
                 <span class="note">※初日の場合は0</span>
             </div>
             <div>
                 <label>現在のスキップパスの枚数</label>
-                <select id="init-pass">
-                    </select>
+                <select id="init-pass"></select>
             </div>
             <div>
                 <label>計算開始日</label>
@@ -86,7 +86,7 @@
         <button class="exec-btn" onclick="saveAndRefresh()">実 行</button>
 
         <div class="status-bar">
-            <div>現在のパス残数: <span id="current-pass-display">0</span> 枚</div>
+            <div><span class="today-label" id="today-date-display"></span>今日のパス残数: <span id="current-pass-display">0</span> 枚</div>
             <div style="font-size: 0.7rem; color: #ccc;">※月曜日に自動+1（上限10枚）</div>
         </div>
 
@@ -116,12 +116,10 @@
     const DAYS_LIMIT = 60;
 
     window.onload = () => {
-        // プルダウンの動的生成
         const plusSelect = document.getElementById('init-plus');
         for(let i=0; i<=17; i++) {
             let opt = document.createElement('option');
-            opt.value = i; 
-            opt.innerText = i; // " pt" を削除
+            opt.value = i; opt.innerText = i;
             plusSelect.appendChild(opt);
         }
         const passSelect = document.getElementById('init-pass');
@@ -131,10 +129,17 @@
             passSelect.appendChild(opt);
         }
 
-        const today = new Date().toISOString().split('T')[0];
-        document.getElementById('start-date').value = today;
+        const todayObj = new Date();
+        const todayStr = todayObj.getFullYear() + '-' + ('0' + (todayObj.getMonth() + 1)).slice(-2) + '-' + ('0' + todayObj.getDate()).slice(-2);
+        
         renderTable(); 
         loadData();    
+        
+        // 保存データがない場合のみ今日の日付をセット
+        if(!document.getElementById('start-date').value) {
+            document.getElementById('start-date').value = todayStr;
+        }
+        
         runSim();      
     };
 
@@ -172,11 +177,17 @@
         let startDateInput = document.getElementById('start-date').value;
         let startDate = startDateInput ? new Date(startDateInput) : new Date();
         
+        const now = new Date();
+        const todayStr = now.getMonth()+1 + "/" + now.getDate();
+        let todayPassCount = "期間外";
+        document.getElementById('today-date-display').innerText = `(${todayStr})`;
+
         for (let i = 0; i < DAYS_LIMIT; i++) {
             let d = new Date(startDate);
             d.setDate(startDate.getDate() + i);
             let dayOfWeek = d.getDay(); 
-            let dateStr = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][dayOfWeek]})`;
+            let dateKey = (d.getMonth()+1) + "/" + d.getDate();
+            let dateStr = dateKey + `(${['日','月','火','水','木','金','土'][dayOfWeek]})`;
             
             if (dayOfWeek === 1 && i !== 0) {
                 passHold = Math.min(10, passHold + 1);
@@ -188,16 +199,26 @@
             let isEnd = false;
 
             const dateCell = document.getElementById(`date-${i}`);
+            const row = document.getElementById(`row-${i}`);
             dateCell.innerText = dateStr;
+            
+            // 今日の行をハイライト
+            if (dateKey === todayStr) {
+                row.classList.add('today-highlight');
+                todayPassCount = passHold; // 今日の時点のパス数を保持（パス使用判定の前）
+            } else {
+                row.classList.remove('today-highlight');
+            }
+
             if (dayOfWeek === 2) { dateCell.className = "tuesday"; } else { dateCell.className = ""; }
 
             if (isPass) {
                 status = "SKIP";
                 passHold = Math.max(0, passHold - 1);
-                document.getElementById(`row-${i}`).className = "pass-row";
+                row.className = dateKey === todayStr ? "pass-row today-highlight" : "pass-row";
             } else {
                 totalPlus += dailyScore;
-                document.getElementById(`row-${i}`).className = "";
+                if(!isPass) row.classList.remove('pass-row');
                 if (totalPlus >= 18) { status = "アップ"; isEnd = true; }
                 else if (dayRem <= 0) { status = (totalPlus >= 12) ? "キープ" : "ダウン"; isEnd = true; }
             }
@@ -210,8 +231,6 @@
             sCell.className = (status==="アップ")?"up":(status==="ダウン")?"down":(status==="キープ")?"keep":"";
             document.getElementById(`passcnt-${i}`).innerText = `${passHold}枚`;
 
-            if (i === 0) document.getElementById('current-pass-display').innerText = passHold;
-
             if (!isPass) {
                 if (isEnd) {
                     let idx = RANKS.indexOf(curRank);
@@ -223,6 +242,8 @@
                 }
             }
         }
+        // 黒いバーに反映
+        document.getElementById('current-pass-display').innerText = todayPassCount;
     }
 
     function saveAndRefresh() {
@@ -240,12 +261,12 @@
             start: document.getElementById('start-date').value,
             scores: scores, passes: passes
         };
-        localStorage.setItem('iriam_full_v4', JSON.stringify(data));
+        localStorage.setItem('iriam_full_v5', JSON.stringify(data));
         alert("実行しました。入力を保存しました。");
     }
 
     function loadData() {
-        let raw = localStorage.getItem('iriam_full_v4');
+        let raw = localStorage.getItem('iriam_full_v5');
         if (!raw) return;
         let d = JSON.parse(raw);
         document.getElementById('init-rank').value = d.rank;
