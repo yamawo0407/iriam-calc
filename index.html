@@ -14,7 +14,7 @@
         .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff5f0; padding: 15px; border-radius: 10px; }
         .setup-grid div { display: flex; flex-direction: column; }
         label { font-size: 0.75rem; color: #666; margin-bottom: 3px; font-weight: bold; }
-        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; background: white; }
 
         .exec-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 15px 0; box-shadow: 0 4px 0 #cc3700; }
         .exec-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc3700; }
@@ -27,14 +27,14 @@
         th { background: #f2f2f2; position: sticky; top: 0; z-index: 5; font-size: 0.75rem; }
         th, td { border: 1px solid #eee; padding: 8px 5px; text-align: center; }
         
-        input.score-in { width: 45px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 4px; }
+        /* プラス列のセレクトボックス用スタイル */
+        .score-select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; cursor: pointer; background: #fff; }
         .pass-chk { transform: scale(1.2); cursor: pointer; }
         
         .up { background: #fff5f5; color: #e53e3e; font-weight: bold; }
         .down { background: #ebf8ff; color: #3182ce; }
         .keep { background: #f0fff4; color: #38a169; }
         .pass-row { background: #f9f9f9 !important; color: #999; }
-        /* 火曜日に赤いラインを表示 */
         .tuesday { border-left: 5px solid #ff4500; }
 
         .summary-text { font-size: 0.7rem; color: #999; text-align: center; margin-top: 10px; }
@@ -110,9 +110,9 @@
     window.onload = () => {
         const today = new Date().toISOString().split('T')[0];
         document.getElementById('start-date').value = today;
-        loadData();
-        renderTable();
-        runSim();
+        renderTable(); // 先にテーブルを生成
+        loadData();    // 保存データを読み込んで反映
+        runSim();      // 初回計算
     };
 
     function renderTable() {
@@ -125,7 +125,15 @@
                 <td id="date-${i}"></td>
                 <td id="rank-${i}"></td>
                 <td id="days-${i}"></td>
-                <td><input type="number" class="score-in" id="score-${i}" value="1" oninput="runSim()"></td>
+                <td>
+                    <select class="score-select" id="score-${i}" onchange="runSim()">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="4">4</option>
+                        <option value="6">6</option>
+                        <option value="0">0</option>
+                    </select>
+                </td>
                 <td><input type="checkbox" class="pass-chk" id="pass-${i}" onchange="runSim()"></td>
                 <td id="total-${i}"></td>
                 <td id="status-${i}"></td>
@@ -146,10 +154,9 @@
         for (let i = 0; i < DAYS_LIMIT; i++) {
             let d = new Date(startDate);
             d.setDate(startDate.getDate() + i);
-            let dayOfWeek = d.getDay(); // 0=日, 1=月, 2=火...
+            let dayOfWeek = d.getDay(); 
             let dateStr = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][dayOfWeek]})`;
             
-            // 月曜日にパス配布（上限10）
             if (dayOfWeek === 1 && i !== 0) {
                 passHold = Math.min(10, passHold + 1);
             }
@@ -161,13 +168,7 @@
 
             const dateCell = document.getElementById(`date-${i}`);
             dateCell.innerText = dateStr;
-            
-            // 火曜日に赤いラインを表示
-            if (dayOfWeek === 2) {
-                dateCell.className = "tuesday";
-            } else {
-                dateCell.className = "";
-            }
+            if (dayOfWeek === 2) { dateCell.className = "tuesday"; } else { dateCell.className = ""; }
 
             if (isPass) {
                 status = "SKIP";
@@ -180,7 +181,6 @@
                 else if (dayRem <= 0) { status = (totalPlus >= 12) ? "キープ" : "ダウン"; isEnd = true; }
             }
 
-            // セルへの反映
             document.getElementById(`rank-${i}`).innerText = curRank;
             document.getElementById(`days-${i}`).innerText = isPass ? "-" : `${dayRem}日`;
             document.getElementById(`total-${i}`).innerText = isPass ? "-" : totalPlus;
@@ -219,12 +219,12 @@
             start: document.getElementById('start-date').value,
             scores: scores, passes: passes
         };
-        localStorage.setItem('iriam_full_v2', JSON.stringify(data));
-        alert("実行しました。入力内容を保存しました。");
+        localStorage.setItem('iriam_full_v3', JSON.stringify(data));
+        alert("実行しました。入力を保存しました。");
     }
 
     function loadData() {
-        let raw = localStorage.getItem('iriam_full_v2');
+        let raw = localStorage.getItem('iriam_full_v3');
         if (!raw) return;
         let d = JSON.parse(raw);
         document.getElementById('init-rank').value = d.rank;
@@ -232,13 +232,12 @@
         document.getElementById('init-plus').value = d.plus;
         document.getElementById('init-pass').value = d.pass;
         if(d.start) document.getElementById('start-date').value = d.start;
-        setTimeout(() => {
-            for(let i=0; i<60; i++){
-                if(d.scores && d.scores[i] !== undefined) document.getElementById(`score-${i}`).value = d.scores[i];
-                if(d.passes && d.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = d.passes[i];
-            }
-            runSim();
-        }, 100);
+        
+        // セレクトボックスの値を復元
+        for(let i=0; i<60; i++){
+            if(d.scores && d.scores[i] !== undefined) document.getElementById(`score-${i}`).value = d.scores[i];
+            if(d.passes && d.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = d.passes[i];
+        }
     }
 </script>
 
