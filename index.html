@@ -3,80 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRIAMランクシミュレーター</title>
+    <title>IRIAM詳細シミュレーター</title>
     <style>
         :root { --primary: #ff4500; --bg: #f5f7fa; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 15px; margin: 0; color: #333; }
-        .card { background: white; border-radius: 16px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
-        h1 { color: var(--primary); font-size: 1.2rem; text-align: center; margin-top: 0; }
-        .input-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        label { font-size: 0.75rem; color: #666; display: block; margin-bottom: 4px; }
-        select, input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1rem; }
-        .full-width { grid-column: span 2; }
-        button { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
-        .results { margin-top: 25px; border-top: 2px solid #eee; padding-top: 20px; }
-        table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-        th, td { border-bottom: 1px solid #eee; padding: 10px 5px; text-align: center; }
-        th { background: #fff5f0; color: var(--primary); position: sticky; top: 0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 10px; margin: 0; color: #333; font-size: 14px; }
+        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; }
+        h1 { color: var(--primary); font-size: 1.1rem; text-align: center; margin-top: 0; }
+        
+        .setup-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #fff5f0; padding: 10px; border-radius: 8px; }
+        label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 2px; }
+        select, input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+
+        .scroll-container { overflow-x: auto; margin-top: 15px; border: 1px solid #eee; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { background: #eee; position: sticky; top: 0; z-index: 10; font-size: 0.75rem; }
+        th, td { border: 1px solid #eee; padding: 6px 4px; text-align: center; }
+        
+        input.daily-input { width: 45px; padding: 4px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
+        .pass-chk { transform: scale(1.2); }
+        
         .up { background: #fff5f5; color: #e53e3e; font-weight: bold; }
         .down { background: #ebf8ff; color: #3182ce; }
         .keep { background: #f0fff4; color: #38a169; }
-        .summary { font-size: 0.7rem; color: #999; text-align: center; margin-top: 10px; }
+        .pass-row { background: #f9f9f9; color: #999; }
+
+        .btn-area { position: sticky; bottom: 10px; background: white; padding: 10px 0; text-align: center; border-top: 1px solid #eee; }
+        button { padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h1>IRIAM 2ヶ月シミュレーター</h1>
-        <div class="input-grid">
-            <div>
-                <label>現在のランク</label>
-                <select id="rank">
-                    <option value="D">D</option><option value="C1">C1</option><option value="C2">C2</option>
-                    <option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
-                    <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
-                    <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
-                    <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
-                </select>
-            </div>
-            <div>
-                <label>残り日数(6〜0)</label>
-                <input type="number" id="days" value="6" min="0" max="6">
-            </div>
-            <div class="full-width">
-                <label>毎日の目標獲得スコア</label>
-                <input type="number" id="score" value="2" min="0">
-            </div>
-        </div>
-        <button onclick="calculate()">60日間をシミュレーション</button>
 
-        <div class="results">
-            <table id="res-table">
-                <thead><tr><th>日付</th><th>ランク</th><th>残り</th><th>累計</th><th>判定</th></tr></thead>
-                <tbody></tbody>
-            </table>
-            <div class="summary">※毎日同じスコアを獲得したと仮定して計算します</div>
+<div class="card">
+    <h1>IRIAM詳細シミュレーター (60日)</h1>
+    
+    <div class="setup-area">
+        <div>
+            <label>初期ランク</label>
+            <select id="init-rank">
+                <option value="D">D</option><option value="C1">C1</option><option value="C2">C2</option>
+                <option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
+                <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
+                <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
+                <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
+            </select>
+        </div>
+        <div>
+            <label>初期残り日数(6〜0)</label>
+            <input type="number" id="init-days" value="6" min="0" max="6">
         </div>
     </div>
 
-    <script>
-        const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
-        
-        function calculate() {
-            let curRank = document.getElementById('rank').value;
-            let dayRem = parseInt(document.getElementById('days').value);
-            let dailyAdd = parseInt(document.getElementById('score').value);
-            const tbody = document.querySelector("#res-table tbody");
-            tbody.innerHTML = "";
-            
-            let total = 0;
-            let date = new Date();
+    <div class="scroll-container">
+        <table id="sim-table">
+            <thead>
+                <tr>
+                    <th>日付</th>
+                    <th>パス</th>
+                    <th>予定pt</th>
+                    <th>ランク</th>
+                    <th>残り</th>
+                    <th>累計</th>
+                    <th>判定</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                </tbody>
+        </table>
+    </div>
 
-            for (let i = 1; i <= 60; i++) {
-                let status = "-";
-                let isEnd = false;
-                let dateStr = (date.getMonth() + 1) + "/" + date.getDate();
+    <div class="btn-area">
+        <button onclick="runSimulation()">計算を更新して保存</button>
+    </div>
+</div>
 
+<script>
+    const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
+    const DAYS_COUNT = 60;
+
+    // 初期表示
+    window.onload = () => {
+        loadData();
+        renderRows();
+        runSimulation();
+    };
+
+    function renderRows() {
+        const tbody = document.getElementById('table-body');
+        let date = new Date();
+        for (let i = 0; i < DAYS_COUNT; i++) {
+            let dateStr = (date.getMonth() + 1) + "/" + date.getDate();
+            let tr = document.createElement('tr');
+            tr.id = `row-${i}`;
+            tr.innerHTML = `
+                <td>${dateStr}</td>
+                <td><input type="checkbox" class="pass-chk" id="pass-${i}" onchange="runSimulation()"></td>
+                <td><input type="number" class="daily-input" id="score-${i}" value="2" oninput="runSimulation()"></td>
+                <td id="rank-${i}">-</td>
+                <td id="rem-${i}">-</td>
+                <td id="total-${i}">-</td>
+                <td id="status-${i}">-</td>
+            `;
+            tbody.appendChild(tr);
+            date.setDate(date.getDate() + 1);
+        }
+    }
+
+    function runSimulation() {
+        let curRank = document.getElementById('init-rank').value;
+        let dayRem = parseInt(document.getElementById('init-days').value);
+        let total = 0;
+        let dataToSave = { scores: [], passes: [], initRank: curRank, initDays: dayRem };
+
+        for (let i = 0; i < DAYS_COUNT; i++) {
+            let isPass = document.getElementById(`pass-${i}`).checked;
+            let dailyAdd = parseInt(document.getElementById(`score-${i}`).value) || 0;
+            let status = "-";
+            let isEnd = false;
+
+            dataToSave.scores.push(dailyAdd);
+            dataToSave.passes.push(isPass);
+
+            if (isPass) {
+                // スキップパス使用時：ランク・日数は変動しない
+                status = "PASS";
+                document.getElementById(`row-${i}`).className = "pass-row";
+            } else {
                 total += dailyAdd;
+                document.getElementById(`row-${i}`).className = "";
 
                 if (total >= 18) {
                     status = "アップ";
@@ -85,29 +138,46 @@
                     status = (total >= 12) ? "キープ" : "ダウン";
                     isEnd = true;
                 }
+            }
 
-                let rowClass = (status === "アップ") ? "up" : (status === "ダウン" ? "down" : (status === "キープ" ? "keep" : ""));
-                let tr = `<tr class="${rowClass}">
-                    <td>${dateStr}</td>
-                    <td>${curRank}</td>
-                    <td>${dayRem}日</td>
-                    <td>${total}pt</td>
-                    <td>${status}</td>
-                </tr>`;
-                tbody.innerHTML += tr;
+            // 表示更新
+            document.getElementById(`rank-${i}`).innerText = curRank;
+            document.getElementById(`rem-${i}`).innerText = isPass ? "-" : dayRem + "日";
+            document.getElementById(`total-${i}`).innerText = isPass ? "-" : total + "pt";
+            let statusCell = document.getElementById(`status-${i}`);
+            statusCell.innerText = status;
+            statusCell.className = (status === "アップ") ? "up" : (status === "ダウン" ? "down" : (status === "キープ" ? "keep" : ""));
 
-                if (isEnd) {
-                    let idx = RANKS.indexOf(curRank);
-                    if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
-                    else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
-                    total = 0;
-                    dayRem = 6;
-                } else {
-                    dayRem--;
-                }
-                date.setDate(date.getDate() + 1);
+            if (!isPass && isEnd) {
+                let idx = RANKS.indexOf(curRank);
+                if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
+                else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
+                total = 0;
+                dayRem = 6;
+            } else if (!isPass) {
+                dayRem--;
             }
         }
-    </script>
+        localStorage.setItem('iriam_sim_data', JSON.stringify(dataToSave));
+    }
+
+    function loadData() {
+        let saved = localStorage.getItem('iriam_sim_data');
+        if (!saved) return;
+        let data = JSON.parse(saved);
+        document.getElementById('init-rank').value = data.initRank;
+        document.getElementById('init-days').value = data.initDays;
+        
+        // データの復元はrenderRowsの後に行う必要があるため、runSimulation内で初期値をセット
+        setTimeout(() => {
+            for (let i = 0; i < DAYS_COUNT; i++) {
+                if(data.scores[i] !== undefined) document.getElementById(`score-${i}`).value = data.scores[i];
+                if(data.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = data.passes[i];
+            }
+            runSimulation();
+        }, 100);
+    }
+</script>
+
 </body>
 </html>
