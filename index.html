@@ -11,10 +11,13 @@
         .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
         h1 { color: var(--primary); font-size: 1.1rem; text-align: center; margin: 0 0 15px 0; }
         
-        .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff5f0; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff5f0; padding: 15px; border-radius: 10px; }
         .setup-grid div { display: flex; flex-direction: column; }
-        label { font-size: 0.7rem; color: #666; margin-bottom: 3px; font-weight: bold; }
+        label { font-size: 0.75rem; color: #666; margin-bottom: 3px; font-weight: bold; }
         input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
+
+        .exec-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1.1rem; cursor: pointer; margin: 15px 0; box-shadow: 0 4px 0 #cc3700; }
+        .exec-btn:active { transform: translateY(2px); box-shadow: 0 2px 0 #cc3700; }
 
         .status-bar { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
         .status-bar span { font-weight: bold; color: #ffeb3b; }
@@ -31,9 +34,10 @@
         .down { background: #ebf8ff; color: #3182ce; }
         .keep { background: #f0fff4; color: #38a169; }
         .pass-row { background: #f9f9f9 !important; color: #999; }
-        .monday { border-left: 4px solid #ff4500; }
+        /* 火曜日に赤いラインを表示 */
+        .tuesday { border-left: 5px solid #ff4500; }
 
-        .save-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
+        .summary-text { font-size: 0.7rem; color: #999; text-align: center; margin-top: 10px; }
     </style>
 </head>
 <body>
@@ -54,7 +58,7 @@
                 </select>
             </div>
             <div>
-                <label>サイクルの残り日数</label>
+                <label>ランクダウンまでの日数</label>
                 <input type="number" id="init-days" value="6" min="0" max="6">
             </div>
             <div>
@@ -62,18 +66,16 @@
                 <input type="number" id="init-plus" value="0" min="0">
             </div>
             <div>
-                <label>初期パス所持数</label>
+                <label>現在のスキップパスの枚数</label>
                 <input type="number" id="init-pass" value="2" min="0" max="10">
             </div>
             <div>
                 <label>計算開始日</label>
                 <input type="date" id="start-date">
             </div>
-            <div>
-                <label>パス不定期調整</label>
-                <input type="number" id="pass-adj" value="0" placeholder="枚数加算">
-            </div>
         </div>
+
+        <button class="exec-btn" onclick="saveAndRefresh()">実 行</button>
 
         <div class="status-bar">
             <div>現在のパス残数: <span id="current-pass-display">0</span> 枚</div>
@@ -87,8 +89,8 @@
                         <th>日付</th>
                         <th>ランク</th>
                         <th>残り</th>
-                        <th>スコア</th>
-                        <th>パス使用</th>
+                        <th>プラス</th>
+                        <th>スキパ</th>
                         <th>累計プラス</th>
                         <th>判定</th>
                         <th>パス残数</th>
@@ -97,8 +99,7 @@
                 <tbody id="table-body"></tbody>
             </table>
         </div>
-        
-        <button class="save-btn" onclick="saveAndRefresh()">設定を反映して保存</button>
+        <div class="summary-text">※入力内容は自動的にブラウザへ保存されます。</div>
     </div>
 </div>
 
@@ -139,18 +140,16 @@
         let dayRem = parseInt(document.getElementById('init-days').value);
         let totalPlus = parseInt(document.getElementById('init-plus').value);
         let passHold = parseInt(document.getElementById('init-pass').value);
-        let passAdj = parseInt(document.getElementById('pass-adj').value) || 0;
-        let startDate = new Date(document.getElementById('start-date').value);
+        let startDateInput = document.getElementById('start-date').value;
+        let startDate = startDateInput ? new Date(startDateInput) : new Date();
         
-        passHold += passAdj;
-
         for (let i = 0; i < DAYS_LIMIT; i++) {
             let d = new Date(startDate);
             d.setDate(startDate.getDate() + i);
-            let dayOfWeek = d.getDay(); // 1=月
+            let dayOfWeek = d.getDay(); // 0=日, 1=月, 2=火...
             let dateStr = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][dayOfWeek]})`;
             
-            // 月曜日のパス配布（上限10）
+            // 月曜日にパス配布（上限10）
             if (dayOfWeek === 1 && i !== 0) {
                 passHold = Math.min(10, passHold + 1);
             }
@@ -160,8 +159,15 @@
             let status = "-";
             let isEnd = false;
 
-            document.getElementById(`date-${i}`).innerText = dateStr;
-            if (dayOfWeek === 1) document.getElementById(`date-${i}`).className = "monday";
+            const dateCell = document.getElementById(`date-${i}`);
+            dateCell.innerText = dateStr;
+            
+            // 火曜日に赤いラインを表示
+            if (dayOfWeek === 2) {
+                dateCell.className = "tuesday";
+            } else {
+                dateCell.className = "";
+            }
 
             if (isPass) {
                 status = "SKIP";
@@ -174,9 +180,9 @@
                 else if (dayRem <= 0) { status = (totalPlus >= 12) ? "キープ" : "ダウン"; isEnd = true; }
             }
 
-            // 表示
+            // セルへの反映
             document.getElementById(`rank-${i}`).innerText = curRank;
-            document.getElementById(`days-${i}`).innerText = isPass ? "-" : `残り${dayRem}日`;
+            document.getElementById(`days-${i}`).innerText = isPass ? "-" : `${dayRem}日`;
             document.getElementById(`total-${i}`).innerText = isPass ? "-" : totalPlus;
             let sCell = document.getElementById(`status-${i}`);
             sCell.innerText = status;
@@ -211,27 +217,25 @@
             plus: document.getElementById('init-plus').value,
             pass: document.getElementById('init-pass').value,
             start: document.getElementById('start-date').value,
-            adj: document.getElementById('pass-adj').value,
             scores: scores, passes: passes
         };
-        localStorage.setItem('iriam_full_data', JSON.stringify(data));
-        alert("設定と入力を保存しました。");
+        localStorage.setItem('iriam_full_v2', JSON.stringify(data));
+        alert("実行しました。入力内容を保存しました。");
     }
 
     function loadData() {
-        let raw = localStorage.getItem('iriam_full_data');
+        let raw = localStorage.getItem('iriam_full_v2');
         if (!raw) return;
         let d = JSON.parse(raw);
         document.getElementById('init-rank').value = d.rank;
         document.getElementById('init-days').value = d.days;
         document.getElementById('init-plus').value = d.plus;
         document.getElementById('init-pass').value = d.pass;
-        document.getElementById('start-date').value = d.start;
-        document.getElementById('pass-adj').value = d.adj;
+        if(d.start) document.getElementById('start-date').value = d.start;
         setTimeout(() => {
             for(let i=0; i<60; i++){
-                document.getElementById(`score-${i}`).value = d.scores[i];
-                document.getElementById(`pass-${i}`).checked = d.passes[i];
+                if(d.scores && d.scores[i] !== undefined) document.getElementById(`score-${i}`).value = d.scores[i];
+                if(d.passes && d.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = d.passes[i];
             }
             runSim();
         }, 100);
