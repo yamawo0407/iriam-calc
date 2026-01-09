@@ -3,178 +3,237 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IRIAM詳細シミュレーター</title>
+    <title>IRIAMランク管理システム</title>
     <style>
-        :root { --primary: #ff4500; --bg: #f5f7fa; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); padding: 10px; margin: 0; color: #333; font-size: 14px; }
-        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; }
-        h1 { color: var(--primary); font-size: 1.1rem; text-align: center; margin-top: 0; }
+        :root { --primary: #ff4500; --bg: #f8f9fa; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); margin: 0; padding: 10px; color: #333; font-size: 13px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        .card { background: white; border-radius: 12px; padding: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        h1 { color: var(--primary); font-size: 1.1rem; text-align: center; margin: 0 0 15px 0; }
         
-        .setup-area { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; background: #fff5f0; padding: 10px; border-radius: 8px; }
-        label { font-size: 0.7rem; color: #666; display: block; margin-bottom: 2px; }
-        select, input[type="number"] { width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .setup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; background: #fff5f0; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .setup-grid div { display: flex; flex-direction: column; }
+        label { font-size: 0.7rem; color: #666; margin-bottom: 3px; font-weight: bold; }
+        input, select { padding: 8px; border: 1px solid #ddd; border-radius: 6px; font-size: 0.9rem; }
 
-        .scroll-container { overflow-x: auto; margin-top: 15px; border: 1px solid #eee; }
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { background: #eee; position: sticky; top: 0; z-index: 10; font-size: 0.75rem; }
-        th, td { border: 1px solid #eee; padding: 6px 4px; text-align: center; }
+        .status-bar { display: flex; justify-content: space-between; align-items: center; background: #333; color: white; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; }
+        .status-bar span { font-weight: bold; color: #ffeb3b; }
+
+        .table-wrapper { overflow-x: auto; border: 1px solid #eee; border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; background: white; }
+        th { background: #f2f2f2; position: sticky; top: 0; z-index: 5; font-size: 0.75rem; }
+        th, td { border: 1px solid #eee; padding: 8px 5px; text-align: center; }
         
-        input.daily-input { width: 45px; padding: 4px; text-align: center; border: 1px solid #ccc; border-radius: 4px; }
-        .pass-chk { transform: scale(1.2); }
+        input.score-in { width: 45px; text-align: center; border: 1px solid #ccc; border-radius: 4px; padding: 4px; }
+        .pass-chk { transform: scale(1.2); cursor: pointer; }
         
         .up { background: #fff5f5; color: #e53e3e; font-weight: bold; }
         .down { background: #ebf8ff; color: #3182ce; }
         .keep { background: #f0fff4; color: #38a169; }
-        .pass-row { background: #f9f9f9; color: #999; }
+        .pass-row { background: #f9f9f9 !important; color: #999; }
+        .monday { border-left: 4px solid #ff4500; }
 
-        .btn-area { position: sticky; bottom: 10px; background: white; padding: 10px 0; text-align: center; border-top: 1px solid #eee; }
-        button { padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .save-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-weight: bold; font-size: 1rem; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h1>IRIAM詳細シミュレーター (60日)</h1>
-    
-    <div class="setup-area">
-        <div>
-            <label>初期ランク</label>
-            <select id="init-rank">
-                <option value="D">D</option><option value="C1">C1</option><option value="C2">C2</option>
-                <option value="C3">C3</option><option value="C4">C4</option><option value="C5">C5</option>
-                <option value="B1">B1</option><option value="B2">B2</option><option value="B3">B3</option>
-                <option value="A1">A1</option><option value="A2">A2</option><option value="A3">A3</option>
-                <option value="S1">S1</option><option value="S2">S2</option><option value="S3">S3</option>
-            </select>
+<div class="container">
+    <div class="card">
+        <h1>🛠 IRIAMランク管理システム (60日)</h1>
+        
+        <div class="setup-grid">
+            <div>
+                <label>現在のランク</label>
+                <select id="init-rank">
+                    <option value="S3">S3</option><option value="S2">S2</option><option value="S1">S1</option>
+                    <option value="A3">A3</option><option value="A2">A2</option><option value="A1">A1</option>
+                    <option value="B3">B3</option><option value="B2">B2</option><option value="B1">B1</option>
+                    <option value="C5">C5</option><option value="C4">C4</option><option value="C3">C3</option>
+                    <option value="C2">C2</option><option value="C1">C1</option><option value="D">D</option>
+                </select>
+            </div>
+            <div>
+                <label>サイクルの残り日数</label>
+                <input type="number" id="init-days" value="6" min="0" max="6">
+            </div>
+            <div>
+                <label>現在の累計プラス</label>
+                <input type="number" id="init-plus" value="0" min="0">
+            </div>
+            <div>
+                <label>初期パス所持数</label>
+                <input type="number" id="init-pass" value="2" min="0" max="10">
+            </div>
+            <div>
+                <label>計算開始日</label>
+                <input type="date" id="start-date">
+            </div>
+            <div>
+                <label>パス不定期調整</label>
+                <input type="number" id="pass-adj" value="0" placeholder="枚数加算">
+            </div>
         </div>
-        <div>
-            <label>初期残り日数(6〜0)</label>
-            <input type="number" id="init-days" value="6" min="0" max="6">
+
+        <div class="status-bar">
+            <div>現在のパス残数: <span id="current-pass-display">0</span> 枚</div>
+            <div style="font-size: 0.7rem; color: #ccc;">※月曜日に自動+1（上限10枚）</div>
         </div>
-    </div>
 
-    <div class="scroll-container">
-        <table id="sim-table">
-            <thead>
-                <tr>
-                    <th>日付</th>
-                    <th>パス</th>
-                    <th>予定pt</th>
-                    <th>ランク</th>
-                    <th>残り</th>
-                    <th>累計</th>
-                    <th>判定</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                </tbody>
-        </table>
-    </div>
-
-    <div class="btn-area">
-        <button onclick="runSimulation()">計算を更新して保存</button>
+        <div class="table-wrapper">
+            <table id="main-table">
+                <thead>
+                    <tr>
+                        <th>日付</th>
+                        <th>ランク</th>
+                        <th>残り</th>
+                        <th>スコア</th>
+                        <th>パス使用</th>
+                        <th>累計プラス</th>
+                        <th>判定</th>
+                        <th>パス残数</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+        
+        <button class="save-btn" onclick="saveAndRefresh()">設定を反映して保存</button>
     </div>
 </div>
 
 <script>
     const RANKS = ["D", "C1", "C2", "C3", "C4", "C5", "B1", "B2", "B3", "A1", "A2", "A3", "S1", "S2", "S3"];
-    const DAYS_COUNT = 60;
+    const DAYS_LIMIT = 60;
 
-    // 初期表示
     window.onload = () => {
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('start-date').value = today;
         loadData();
-        renderRows();
-        runSimulation();
+        renderTable();
+        runSim();
     };
 
-    function renderRows() {
+    function renderTable() {
         const tbody = document.getElementById('table-body');
-        let date = new Date();
-        for (let i = 0; i < DAYS_COUNT; i++) {
-            let dateStr = (date.getMonth() + 1) + "/" + date.getDate();
+        tbody.innerHTML = "";
+        for (let i = 0; i < DAYS_LIMIT; i++) {
             let tr = document.createElement('tr');
             tr.id = `row-${i}`;
             tr.innerHTML = `
-                <td>${dateStr}</td>
-                <td><input type="checkbox" class="pass-chk" id="pass-${i}" onchange="runSimulation()"></td>
-                <td><input type="number" class="daily-input" id="score-${i}" value="2" oninput="runSimulation()"></td>
-                <td id="rank-${i}">-</td>
-                <td id="rem-${i}">-</td>
-                <td id="total-${i}">-</td>
-                <td id="status-${i}">-</td>
+                <td id="date-${i}"></td>
+                <td id="rank-${i}"></td>
+                <td id="days-${i}"></td>
+                <td><input type="number" class="score-in" id="score-${i}" value="1" oninput="runSim()"></td>
+                <td><input type="checkbox" class="pass-chk" id="pass-${i}" onchange="runSim()"></td>
+                <td id="total-${i}"></td>
+                <td id="status-${i}"></td>
+                <td id="passcnt-${i}"></td>
             `;
             tbody.appendChild(tr);
-            date.setDate(date.getDate() + 1);
         }
     }
 
-    function runSimulation() {
+    function runSim() {
         let curRank = document.getElementById('init-rank').value;
         let dayRem = parseInt(document.getElementById('init-days').value);
-        let total = 0;
-        let dataToSave = { scores: [], passes: [], initRank: curRank, initDays: dayRem };
+        let totalPlus = parseInt(document.getElementById('init-plus').value);
+        let passHold = parseInt(document.getElementById('init-pass').value);
+        let passAdj = parseInt(document.getElementById('pass-adj').value) || 0;
+        let startDate = new Date(document.getElementById('start-date').value);
+        
+        passHold += passAdj;
 
-        for (let i = 0; i < DAYS_COUNT; i++) {
+        for (let i = 0; i < DAYS_LIMIT; i++) {
+            let d = new Date(startDate);
+            d.setDate(startDate.getDate() + i);
+            let dayOfWeek = d.getDay(); // 1=月
+            let dateStr = `${d.getMonth()+1}/${d.getDate()}(${['日','月','火','水','木','金','土'][dayOfWeek]})`;
+            
+            // 月曜日のパス配布（上限10）
+            if (dayOfWeek === 1 && i !== 0) {
+                passHold = Math.min(10, passHold + 1);
+            }
+
             let isPass = document.getElementById(`pass-${i}`).checked;
-            let dailyAdd = parseInt(document.getElementById(`score-${i}`).value) || 0;
+            let dailyScore = parseInt(document.getElementById(`score-${i}`).value) || 0;
             let status = "-";
             let isEnd = false;
 
-            dataToSave.scores.push(dailyAdd);
-            dataToSave.passes.push(isPass);
+            document.getElementById(`date-${i}`).innerText = dateStr;
+            if (dayOfWeek === 1) document.getElementById(`date-${i}`).className = "monday";
 
             if (isPass) {
-                // スキップパス使用時：ランク・日数は変動しない
-                status = "PASS";
+                status = "SKIP";
+                passHold = Math.max(0, passHold - 1);
                 document.getElementById(`row-${i}`).className = "pass-row";
             } else {
-                total += dailyAdd;
+                totalPlus += dailyScore;
                 document.getElementById(`row-${i}`).className = "";
+                if (totalPlus >= 18) { status = "アップ"; isEnd = true; }
+                else if (dayRem <= 0) { status = (totalPlus >= 12) ? "キープ" : "ダウン"; isEnd = true; }
+            }
 
-                if (total >= 18) {
-                    status = "アップ";
-                    isEnd = true;
-                } else if (dayRem <= 0) {
-                    status = (total >= 12) ? "キープ" : "ダウン";
-                    isEnd = true;
+            // 表示
+            document.getElementById(`rank-${i}`).innerText = curRank;
+            document.getElementById(`days-${i}`).innerText = isPass ? "-" : `残り${dayRem}日`;
+            document.getElementById(`total-${i}`).innerText = isPass ? "-" : totalPlus;
+            let sCell = document.getElementById(`status-${i}`);
+            sCell.innerText = status;
+            sCell.className = (status==="アップ")?"up":(status==="ダウン")?"down":(status==="キープ")?"keep":"";
+            document.getElementById(`passcnt-${i}`).innerText = `${passHold}枚`;
+
+            if (i === 0) document.getElementById('current-pass-display').innerText = passHold;
+
+            if (!isPass) {
+                if (isEnd) {
+                    let idx = RANKS.indexOf(curRank);
+                    if (status === "アップ" && idx < RANKS.length-1) curRank = RANKS[idx+1];
+                    else if (status === "ダウン" && idx > 0) curRank = RANKS[idx-1];
+                    totalPlus = 0; dayRem = 6;
+                } else {
+                    dayRem--;
                 }
             }
-
-            // 表示更新
-            document.getElementById(`rank-${i}`).innerText = curRank;
-            document.getElementById(`rem-${i}`).innerText = isPass ? "-" : dayRem + "日";
-            document.getElementById(`total-${i}`).innerText = isPass ? "-" : total + "pt";
-            let statusCell = document.getElementById(`status-${i}`);
-            statusCell.innerText = status;
-            statusCell.className = (status === "アップ") ? "up" : (status === "ダウン" ? "down" : (status === "キープ" ? "keep" : ""));
-
-            if (!isPass && isEnd) {
-                let idx = RANKS.indexOf(curRank);
-                if (status === "アップ" && idx < RANKS.length - 1) curRank = RANKS[idx + 1];
-                else if (status === "ダウン" && idx > 0) curRank = RANKS[idx - 1];
-                total = 0;
-                dayRem = 6;
-            } else if (!isPass) {
-                dayRem--;
-            }
         }
-        localStorage.setItem('iriam_sim_data', JSON.stringify(dataToSave));
+    }
+
+    function saveAndRefresh() {
+        runSim();
+        let scores = []; let passes = [];
+        for(let i=0; i<60; i++){
+            scores.push(document.getElementById(`score-${i}`).value);
+            passes.push(document.getElementById(`pass-${i}`).checked);
+        }
+        let data = {
+            rank: document.getElementById('init-rank').value,
+            days: document.getElementById('init-days').value,
+            plus: document.getElementById('init-plus').value,
+            pass: document.getElementById('init-pass').value,
+            start: document.getElementById('start-date').value,
+            adj: document.getElementById('pass-adj').value,
+            scores: scores, passes: passes
+        };
+        localStorage.setItem('iriam_full_data', JSON.stringify(data));
+        alert("設定と入力を保存しました。");
     }
 
     function loadData() {
-        let saved = localStorage.getItem('iriam_sim_data');
-        if (!saved) return;
-        let data = JSON.parse(saved);
-        document.getElementById('init-rank').value = data.initRank;
-        document.getElementById('init-days').value = data.initDays;
-        
-        // データの復元はrenderRowsの後に行う必要があるため、runSimulation内で初期値をセット
+        let raw = localStorage.getItem('iriam_full_data');
+        if (!raw) return;
+        let d = JSON.parse(raw);
+        document.getElementById('init-rank').value = d.rank;
+        document.getElementById('init-days').value = d.days;
+        document.getElementById('init-plus').value = d.plus;
+        document.getElementById('init-pass').value = d.pass;
+        document.getElementById('start-date').value = d.start;
+        document.getElementById('pass-adj').value = d.adj;
         setTimeout(() => {
-            for (let i = 0; i < DAYS_COUNT; i++) {
-                if(data.scores[i] !== undefined) document.getElementById(`score-${i}`).value = data.scores[i];
-                if(data.passes[i] !== undefined) document.getElementById(`pass-${i}`).checked = data.passes[i];
+            for(let i=0; i<60; i++){
+                document.getElementById(`score-${i}`).value = d.scores[i];
+                document.getElementById(`pass-${i}`).checked = d.passes[i];
             }
-            runSimulation();
+            runSim();
         }, 100);
     }
 </script>
