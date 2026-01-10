@@ -32,6 +32,8 @@
         
         .score-select { padding: 4px; border: 1px solid #ccc; border-radius: 4px; font-size: 0.9rem; cursor: pointer; background: #fff; width: auto; }
         .pass-chk { transform: scale(1.2); cursor: pointer; }
+        /* チェックボックスが無効の時の見た目 */
+        .pass-chk:disabled { cursor: not-allowed; opacity: 0.3; }
         
         .up { background: #fff5f5; color: #e53e3e; font-weight: bold; }
         .down { background: #ebf8ff; color: #3182ce; }
@@ -135,7 +137,6 @@
         renderTable(); 
         loadData();    
         
-        // 保存データがない場合のみ今日の日付をセット
         if(!document.getElementById('start-date').value) {
             document.getElementById('start-date').value = todayStr;
         }
@@ -178,7 +179,7 @@
         let startDate = startDateInput ? new Date(startDateInput) : new Date();
         
         const now = new Date();
-        const todayStr = now.getMonth()+1 + "/" + now.getDate();
+        const todayStr = (now.getMonth()+1) + "/" + now.getDate();
         let todayPassCount = "期間外";
         document.getElementById('today-date-display').innerText = `(${todayStr})`;
 
@@ -193,7 +194,16 @@
                 passHold = Math.min(10, passHold + 1);
             }
 
-            let isPass = document.getElementById(`pass-${i}`).checked;
+            let passEl = document.getElementById(`pass-${i}`);
+            
+            // パスを持っていない場合はチェックボックスを無効化（ただし既にチェック済みの場合は許可）
+            if (passHold <= 0 && !passEl.checked) {
+                passEl.disabled = true;
+            } else {
+                passEl.disabled = false;
+            }
+
+            let isPass = passEl.checked;
             let dailyScore = parseInt(document.getElementById(`score-${i}`).value) || 0;
             let status = "-";
             let isEnd = false;
@@ -202,10 +212,9 @@
             const row = document.getElementById(`row-${i}`);
             dateCell.innerText = dateStr;
             
-            // 今日の行をハイライト
             if (dateKey === todayStr) {
                 row.classList.add('today-highlight');
-                todayPassCount = passHold; // 今日の時点のパス数を保持（パス使用判定の前）
+                todayPassCount = passHold; 
             } else {
                 row.classList.remove('today-highlight');
             }
@@ -215,10 +224,10 @@
             if (isPass) {
                 status = "SKIP";
                 passHold = Math.max(0, passHold - 1);
-                row.className = dateKey === todayStr ? "pass-row today-highlight" : "pass-row";
+                row.classList.add("pass-row");
             } else {
                 totalPlus += dailyScore;
-                if(!isPass) row.classList.remove('pass-row');
+                row.classList.remove("pass-row");
                 if (totalPlus >= 18) { status = "アップ"; isEnd = true; }
                 else if (dayRem <= 0) { status = (totalPlus >= 12) ? "キープ" : "ダウン"; isEnd = true; }
             }
@@ -242,7 +251,6 @@
                 }
             }
         }
-        // 黒いバーに反映
         document.getElementById('current-pass-display').innerText = todayPassCount;
     }
 
